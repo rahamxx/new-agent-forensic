@@ -1,6 +1,5 @@
-# FORENSIC ENGINE - Autonomous Digital Forensics Investigation Agent
-### *Next-Gen AI SOC Analyst & Multi-Source Digital Forensics Orchestrator*
-**Enterprise Digital Forensics & Incident Response Platform**
+# Forensic Evidence Intelligence Agent (FEIA) - Creating Impact for Bharat
+### *Autonomous digital evidence investigation for India's digital economy*
 
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB.svg?style=flat&logo=python&logoColor=white)](https://python.org)
 [![Flask](https://img.shields.io/badge/Framework-Flask%20%2B%20SocketIO-000000.svg?style=flat&logo=flask)](https://flask.palletsprojects.com)
@@ -13,51 +12,78 @@
 
 ## 1. Project Overview
 
-**FORENSIC ENGINE** is a production-grade **AI-Powered Digital Forensics Investigation Agent**.
+The **Forensic Evidence Intelligence Agent (FEIA)** transforms digital forensics from manual multi-tool clicking into **autonomous investigation** for India's digital economy. A suspicious bank message, a fraudulent UPI or KYC link, and a compromised business mailbox can each leave evidence across email headers, URLs, reputation sources, and browser history. FEIA brings those signals into one traceable workflow: it plans an investigation, invokes relevant forensic tools, follows leads found in evidence, correlates results, and prepares an explainable report and response playbook for human review.
 
-Unlike conventional chatbots, alert-filtering rules, or isolated ML predictors, FORENSIC ENGINE acts as an **autonomous Level-1 Digital Forensics & Incident Response (DFIR) Investigator**. It dynamically plans investigations, autonomously invokes specialized forensic tools, follows newly discovered evidentiary leads (e.g., auto-extracting and deep-scanning hyperlinks found in suspicious emails), correlates cross-source findings, maps threats to **MITRE ATT&CK**, evaluates transparent risk scores, and generates actionable, human-in-the-loop Incident Response (IR) containment playbooks.
+This is a Bharat-scale challenge. The project framing highlights **622M+ Indian internet users at risk** and **₹8,000+ crore in annual cyber-fraud losses**. India's mobile-first financial services and growing online commerce create enormous opportunity, but also make phishing and account compromise consequential for citizens and businesses. At the same time, **63M+ SMEs** lack the resources to operate dedicated security operations teams, while **500+ fintech startups** need ways to scale investigation capacity without multiplying manual review.
 
----
-
-## 2. Problem Statement
-
-Modern Security Operations Centers (SOCs) and cyber forensic teams face an unprecedented surge in targeted spearphishing, credential harvesting portals, malicious redirects, and credential stuffing campaigns.
-
-### The Real-World Pain Points:
-- **Disparate Forensic Silos**: Investigating a single phishing alert requires analysts to manually inspect raw email RFC 822 headers, extract URLs, query threat reputation engines (VirusTotal/WHOIS), inspect browser databases, and review endpoint history.
-- **High Triage Latency (MTTD/MTTR)**: Manual inspection takes **25 to 45 minutes per incident**, creating severe alert backlogs and giving adversaries dwell time to pivot.
-- **Alert Fatigue & Inconsistent Analysis**: Tier-1 analysts frequently miss subtle multi-stage attack patterns—such as a seemingly benign email hosting a freshly registered `.top` domain pointing to a compromised IP address.
-- **Lack of Actionable Containment**: Raw model predictions ("0.87 probability phishing") fail to provide immediate operational guidance on what firewall rules, DNS sinkholes, or account resets are necessary.
+FEIA is designed to help close that first-response gap—not replace CERT-In, law enforcement, or trained incident responders. It accepts supported email, URL, and browser-history evidence; records its investigative actions; distinguishes observed evidence from model assessment; and keeps disruptive response actions behind human approval. The goal is practical: make structured digital investigation more accessible to Indian organizations, from financial institutions to resource-constrained businesses, and support trust in the services on which Digital India depends. National statistics are challenge framing and should be validated against dated primary sources before external use.
 
 ---
 
-## 3. The Agentic Solution
+## 2. Why This Matters for Bharat
 
-**Forensic Engine** fundamentally transforms digital forensics triage from manual multi-tool clicking into an **autonomous agentic investigation loop**:
+India's cyber threat landscape reflects the speed and scale of its digital adoption. Citizens receive bank-impersonation messages, fake KYC notices, QR-code and UPI lures, fraudulent customer-support numbers, and delivery or government-service links through channels they use every day. Businesses face supplier impersonation, invoice diversion, credential theft, and malicious email attachments. One compromised account can harm a household or interrupt a small firm's cash flow; a widespread campaign can affect trust in digital services far beyond a single victim.
 
-$$\textbf{Understand} \longrightarrow \textbf{Plan} \longrightarrow \textbf{Select Tools} \longrightarrow \textbf{Investigate} \longrightarrow \textbf{Correlate} \longrightarrow \textbf{Reason} \longrightarrow \textbf{Recommend} \longrightarrow \textbf{Report}$$
+The challenge framing cites **240,000+ cyber incidents reported annually to CERT-In** and **₹8,000+ crore in annual cyber-fraud losses**. These figures underline the need for faster investigation, but incident counts and loss totals vary by reporting period and definition. They should be cited to current official publications before being treated as audited totals. The same care applies to the estimate that **95% of SMEs lack dedicated security teams**: millions of Indian small businesses rely on general IT support or external help rather than analysts who can investigate every alert.
 
-### Key Capabilities:
-- **Multi-Modal Evidence Ingestion**: Accepts raw URLs, RFC 822 `.eml` emails, plain text alerts, or forensic browser history SQLite databases (`History`, `places.sqlite`).
-- **Dynamic Investigation Planning**: Constructs a dynamic Directed Acyclic Graph (DAG) representing the required forensic investigation steps tailored specifically to the input evidence.
-- **Autonomous Lead Follow-Up**: If `EmailForensicsTool` discovers embedded hyperlinks, the agent autonomously dispatches `URLForensicsTool` and `ReputationEnrichmentTool` without needing human intervention.
-- **Cross-Source Evidence Correlation**: Synthesizes compound attack signals (e.g., Header Spoofing + Fresh Domain + Credential Harvesting Keywords + Known Malicious IP) into unified threat narratives mapped to **MITRE ATT&CK**.
-- **Transparent Multi-Factor Risk Scoring**: Evaluates a calibrated composite score (0–100) combining ML predictions, rule violations, authentication failures, and reputation signals into four standard tiers: `LOW`, `MEDIUM`, `HIGH`, and `CRITICAL`.
-- **Human-in-the-Loop Safeguards**: Enforces strict approval gates before dangerous containment actions (e.g., domain blocking, account suspension) can be applied.
-- **Auditable Forensic Dossier**: Generates comprehensive JSON reports and executive printable/exportable HTML dossiers containing the complete agent execution trace.
+This capacity gap matters to **Digital India**. Public services, digital identity-linked journeys, online payments, and government platforms depend on citizens believing that digital access is dependable. Government IT departments need consistent ways to triage suspicious evidence, preserve investigation context, and escalate credible incidents to authorized responders. An investigation assistant cannot replace security controls, CERT-In directions, or an incident-response plan, but it can help reduce the time between a suspicious signal and an informed human decision.
+
+India's fintech revolution adds urgency. Banks, NBFCs, payment providers, and more than **500 fintech startups** operate in a fast-moving ecosystem where high transaction volumes and mobile-first customer interactions create substantial monitoring needs. Yet an alert is not automatically a forensic case: teams still need to correlate sender identity, links, reputation, and user activity before taking action. Automating evidence collection and first-pass analysis can help specialists focus on complex fraud and confirmed incidents.
+
+For SMEs and mid-market firms, the choice is often not between two SOC vendors; it is between affordable, structured triage and having no dedicated investigation capability. Bharat needs practical cyber defense that can serve both large institutions and organizations without a round-the-clock SOC. That is the local problem FEIA addresses.
 
 ---
 
-## 4. Why It Is Agentic (Not Just a Chatbot)
+## 3. The Agent's Impact
 
-| Feature | Conventional Chatbot / LLM Wrapper | Static Detection Pipeline | Forensic Engine Agent |
-| :--- | :--- | :--- | :--- |
-| **Execution Model** | Static text prompt $\rightarrow$ text response | Hardcoded sequential scripts | **Autonomous Observe $\rightarrow$ Plan $\rightarrow$ Act loop** |
-| **Tool Usage** | None or simulated text calls | Runs all scripts unconditionally | **Dynamic tool selection based on evidence type & intermediate findings** |
-| **Lead Follow-Up** | Cannot autonomously trigger secondary tools | Requires user to re-run pipeline on child outputs | **Autonomously pivots to inspect discovered indicators (e.g., email $\rightarrow$ child URLs)** |
-| **Evidence Synthesis** | Hallucinates or produces generic advice | Isolated score per tool | **Cross-source evidence correlation engine mapped to MITRE ATT&CK** |
-| **State Management** | Ephemeral chat context | None | **Persistent `InvestigationState` with immutable audit log and lead queue** |
-| **Operational Impact** | Conversational only | Raw numbers without context | **One-click actionable Incident Response containment playbooks with human sign-off** |
+FEIA targets the repetitive first phase of investigation: identifying what arrived, extracting relevant indicators, checking supporting evidence, and assembling a reviewable case. Project planning figures compare **25–45 minutes of manual triage** with **1.8–3.2 seconds of automated processing**; a 2.1-second example is approximately **99.9% less processing time** than a 45-minute manual baseline. These are workflow targets, not a measured end-to-end resolution guarantee. Evidence collection, reputation-service latency, analyst review, and response approvals take additional time and must be measured in pilots.
+
+For SMEs, an illustrative shared-service model proposes a **₹50,000 one-time setup** for a consortium, compared with an indicative traditional SOC setup estimate of **₹5–10 lakh** plus managed-security costs that may reach **₹1–2 lakh per month**. Actual prices vary by coverage and provider; the shared model also needs secure tenant separation, support, and operational validation. The point is to explore a lower entry barrier—not claim that a ₹50,000 deployment is equivalent to a full enterprise SOC.
+
+Sector savings are also scenario estimates, not realized outcomes. The fintech impact model estimates **₹2.25–2.40 crore per month** in gross savings if 500 startups adopted the assumed workflow and cost structure. For banking, the documented scenario yields **₹24–32 lakh per participating institution annually**; at 500 institutions that is **₹120–160 crore per year**, not ₹1,600 crore. These calculations exclude adoption and integration costs and require pilot validation.
+
+By automating routine evidence handling, the agent can free analysts for complex investigations, incident coordination, and control improvement. In law-enforcement contexts, structured evidence summaries may support handoffs and prioritization, but do not determine guilt or replace evidentiary standards. The intended impact is better use of human expertise and more accessible, accountable investigation across Bharat.
+
+---
+
+## 4. Key Capabilities
+
+FEIA is built around a bounded investigation loop that can adapt to what the evidence reveals. It accepts supported email, URL, and browser-history inputs; infers an investigation path; invokes specialized analysis tools; and records tool activity and findings for review. When an email contains links, the agent can autonomously dispatch URL analysis rather than waiting for an operator to extract and resubmit each lead. It correlates email authentication results, sender inconsistencies, URL structure, reputation signals, and browsing evidence into a reasoned case narrative.
+
+The agent produces risk scores and severity labels with supporting rationale, maps relevant phishing behavior to MITRE ATT&CK, and generates response recommendations such as searching mailboxes, reviewing sign-in activity, or blocking confirmed indicators. Risk scores and model confidence are decision support, not proof. High-impact actions—including account suspension, credential resets, and broad blocking—remain subject to authorized human approval. This human-in-the-loop design is essential for protecting Indian citizens, customer services, and business operations from both cyber threats and false positives.
+
+### Agentic capabilities
+
+- **Evidence-aware planning:** Selects tools according to whether the input is email, URL, or browser-history evidence.
+- **Autonomous lead follow-up:** Automatically investigates URLs discovered in email or browser evidence.
+- **Specialized forensic tools:** Parses RFC 822 email, analyzes URL features, and inspects supported browser-history databases.
+- **Cross-source correlation:** Relates independent indicators into a compound attack narrative and ATT&CK mapping.
+- **Transparent risk assessment:** Combines model outputs and evidence severity into an explainable risk result.
+- **Investigation lead generation:** Extracts indicators and follow-up pivots for analyst validation.
+- **Workflow and playbook automation:** Builds a traceable investigation sequence and actionable response recommendations.
+- **Auditable reporting:** Produces structured findings and a case execution trace for operational review.
+- **Human-in-the-loop safeguards:** Requires approval before destructive or disruptive containment actions.
+
+### Why FEIA is not a chatbot
+
+| Chatbot or static script | Forensic Evidence Intelligence Agent |
+|---|---|
+| Responds with text or runs a fixed checklist | Plans tools based on evidence type and intermediate findings |
+| Depends on a person to investigate every discovered link | Can automatically pivot from an email to its embedded URLs |
+| Produces isolated predictions or generic advice | Correlates findings and records the basis for its conclusions |
+| Does not manage response authority | Recommends actions while preserving human approval gates |
+
+### Real-world impact metrics
+
+| Measure | Project target or scenario | Validation required |
+|---|---:|---|
+| Routine analysis processing time | 1.8–3.2 seconds | Benchmark representative evidence; report external lookup and review time separately |
+| Manual triage baseline | 25–45 minutes per incident | Establish organization-specific time-and-motion baseline |
+| Fintech gross savings | ₹2.25–2.40 crore/month at 500 assumed adopters | Validate assumptions and subtract deployment, integration, and operating costs |
+| Banking gross savings | ₹120–160 crore/year at 500 assumed institutions | Scenario arithmetic; not realized savings or a forecast |
+| SME consortium setup | ₹50,000 illustrative one-time setup | Validate secure operations, support cost, and provider quotations |
+
+See [docs/](docs/) for detailed documentation, including the [Bharat problem statement](PROBLEM_STATEMENT.md), [investigation workflow](WORKFLOW.md), and [impact assumptions](IMPACT.md). Performance and financial values are planning scenarios and should not be represented as independently validated results.
 
 ---
 
