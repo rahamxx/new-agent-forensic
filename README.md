@@ -498,13 +498,13 @@ The workbench provides 5 one-click scenarios illustrating the agent's dynamic re
 1. **Scenario 1: Apple ID Locked - Foreign Login Alert** (`Email + Embedded URL`)
    - *What the Agent Does*: Ingests raw `.eml` email $\rightarrow$ detects SPF/DKIM fail & sender spoofing $\rightarrow$ autonomously discovers link `http://apple-verify.top/login.php` $\rightarrow$ triggers `URLForensicsTool` and `ReputationEnrichmentTool` $\rightarrow$ identifies `.top` TLD and credential harvesting tokens $\rightarrow$ correlates compound attack $\rightarrow$ triggers `CRITICAL` risk with containment playbook.
 2. **Scenario 2: Chase Bank Wire Fraud Alert** (`Email + Multi-URL with Raw IP`)
-   - *What the Agent Does*: Extracts two separate hyperlinks $\rightarrow$ analyzes both links concurrently $\rightarrow$ flags raw IP address endpoint as an extreme risk $\rightarrow$ maps attack to `T1566.002`.
+   - *What the Agent Does*: Extracts two separate hyperlinks $\rightarrow$ analyzes each discovered link $\rightarrow$ flags a raw IP address endpoint as a high-risk indicator $\rightarrow$ may map the email-delivered link to `T1566.002`.
 3. **Scenario 3: PayPal Credential Harvesting Portal** (`Standalone Malicious URL`)
    - *What the Agent Does*: Evaluates URL length, Shannon entropy, and typosquatting tokens $\rightarrow$ extracts 4 high-severity indicators $\rightarrow$ issues `MEDIUM/HIGH` warning.
 4. **Scenario 4: Compromised Workstation History** (`Browser History`)
    - *What the Agent Does*: Analyzes SQLite browsing history $\rightarrow$ identifies anomalous browsing sessions to phishing infrastructure $\rightarrow$ correlates endpoint execution.
 5. **Scenario 5: Legitimate GitHub Security Alert** (`Legitimate Control`)
-   - *What the Agent Does*: Verifies valid SPF/DKIM passes $\rightarrow$ validates official GitHub domain $\rightarrow$ concludes `LOW` risk (0.0% phishing probability) without triggering false alarms.
+   - *What the Agent Does*: Reads SPF/DKIM results supplied in the email's authentication headers $\rightarrow$ evaluates the sender and URL indicators $\rightarrow$ demonstrates a low-risk control case. These headers are not independently re-verified by the agent.
 
 ### Step 3: Run the Investigation
 - Click the large cyan button: **"Run AI Forensic Investigation"**.
@@ -517,7 +517,22 @@ The workbench provides 5 one-click scenarios illustrating the agent's dynamic re
 
 ---
 
-## 14. Measurable Operational Impact
+## 14. Prototype Validation
+
+The local validation scripts exercise the core agent workflow and API without requiring a live web server:
+
+```powershell
+python test_agent.py
+python test_agent_api.py
+```
+
+**Most recent local check:** Both scripts passed on 2026-10-01 with Python 3.14.5. The agent checks covered a phishing email with an automatically discovered URL, a direct suspicious URL, a legitimate email control, and browser-history triage. The API checks covered preset scenarios, URL and email investigations, dynamic URL follow-up, investigation retrieval, HTML report generation, and an empty-payload `400` response.
+
+These checks establish that the tested local paths ran successfully; they do **not** establish production readiness, calibrated accuracy, 500–1,000-case daily throughput, performance under concurrent load, or end-to-end resolution times. External reputation results depend on configuration and service availability; without credentials, some integrations can return mock or unavailable results. Before a bank or government pilot, add a representative labeled evaluation set, measure precision/recall and false negatives, run load and failure-mode tests, and validate deployment security controls.
+
+---
+
+## 15. Measurable Operational Impact
 
 The following are planning targets and workflow comparisons, not independently validated production results. A bank pilot should measure end-to-end performance on representative Indian banking evidence and report automated processing separately from analyst review and remediation.
 
@@ -531,7 +546,7 @@ The following are planning targets and workflow comparisons, not independently v
 
 ---
 
-## 15. Responsible AI, Security & Human-in-the-Loop Policies
+## 16. Responsible AI, Security & Human-in-the-Loop Policies
 
 FEIA is intended to support responsible, human-supervised investigation. Deploying organizations remain responsible for validating the system, evidence-handling process, and applicable policy:
 
@@ -551,7 +566,7 @@ FEIA is intended to support responsible, human-supervised investigation. Deployi
 
 ---
 
-## 16. Repository Structure
+## 17. Repository Structure
 
 ```
 new-agent-forensic/
@@ -578,7 +593,7 @@ new-agent-forensic/
 
 ---
 
-## 17. Platform Architecture & Standards
+## 18. Platform Architecture & Standards
 
 - **System**: Forensic Evidence Intelligence Agent (FEIA)
 - **Context**: Digital forensics and cyber incident triage for Indian banks, fintechs, government IT, and SMEs
