@@ -83,7 +83,7 @@ The agent produces risk scores and severity labels with supporting rationale, ma
 | Banking gross savings | ₹120–160 crore/year at 500 assumed institutions | Scenario arithmetic; not realized savings or a forecast |
 | SME consortium setup | ₹50,000 illustrative one-time setup | Validate secure operations, support cost, and provider quotations |
 
-See [docs/](docs/) for detailed documentation, including the [Bharat problem statement](PROBLEM_STATEMENT.md), [investigation workflow](WORKFLOW.md), and [impact assumptions](IMPACT.md). Performance and financial values are planning scenarios and should not be represented as independently validated results.
+See [docs/](docs/) for detailed documentation, including the [Bharat problem statement](PROBLEM_STATEMENT.md), [investigation workflow](WORKFLOW.md), and [Indian bank ROI case study](BANK_ROI_CASE_STUDY.md). Performance and financial values are planning scenarios and should not be represented as independently validated results.
 
 ---
 
@@ -92,7 +92,7 @@ See [docs/](docs/) for detailed documentation, including the [Bharat problem sta
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                           AGENT INGESTION INTERFACE                             │
-│       REST API (POST /api/agent/investigate)  │  SOC Workbench Web UI           │
+│       REST API (POST /api/agent/investigate)  │  FEIA Investigation Workbench  │
 │       Multipart File Uploads (.eml, SQLite)    │  One-Click Scenario Presets    │
 └────────────────────────────────────────┬────────────────────────────────────────┘
                                          │
@@ -195,15 +195,15 @@ See [docs/](docs/) for detailed documentation, including the [Bharat problem sta
             [Forensic Dossier & Trace Output]
 ```
 
-1. **Understand & Ingest**: The agent receives an input payload (URL string, RFC 822 `.eml` raw text, browser database file, or network indicator) along with an optional natural language instruction.
+1. **Understand & Ingest**: The agent receives supported evidence such as a URL, RFC 822 `.eml` content, or browser-history data, with an optional investigation instruction. Unsupported evidence types should be routed to a qualified examiner rather than treated as analyzed.
 2. **Dynamic Planning**: The `AgentPlanner` analyzes the input type, initializes an `InvestigationState`, and drafts a task DAG.
 3. **Primary Forensic Tool Execution**:
-   - For emails: The agent invokes `EmailForensicsTool`, parsing headers, validating SPF/DKIM, checking sender alignment (`From` vs `Return-Path`), and running NLP urgency scoring.
+   - For emails: The agent invokes `EmailForensicsTool`, parsing headers, inspecting SPF/DKIM results supplied in authentication headers, checking sender alignment (`From` vs `Return-Path`), and running urgency analysis.
    - For URLs: The agent invokes `URLForensicsTool`, extracting 11+ lexical and structural features.
    - For browser history: The agent invokes `BrowserHistoryForensicsTool`, parsing SQLite tables and detecting anomalous browsing frequencies.
-4. **Autonomous Lead Follow-Up**: If `EmailForensicsTool` discovers embedded URLs in the message body, the agent does **not** stop; it automatically enqueues these URLs and invokes `URLForensicsTool` and `ReputationEnrichmentTool` for external threat scoring.
+4. **Autonomous Lead Follow-Up**: If `EmailForensicsTool` discovers embedded URLs in the message body, the agent does **not** stop; it automatically invokes `URLForensicsTool`, which can request reputation enrichment. The report should distinguish actual external lookup results from unavailable, mocked, or unscanned responses.
 5. **Cross-Source Evidence Correlation**: The `EvidenceCorrelator` analyzes the union of all extracted indicators, looking for compound threat patterns (e.g., Domain Spoofing + Credential Harvesting URL + High Urgency NLP + Known Bad TLD).
-6. **MITRE ATT&CK Mapping**: Maps compound discoveries directly to enterprise adversarial techniques:
+6. **MITRE ATT&CK Mapping**: Maps relevant compound discoveries to adversarial techniques:
    - `T1566.002`: Phishing - Spearphishing Link
    - `T1589.002`: Reconnaissance - Gather Victim Identity Information
    - `T1583.001`: Resource Development - Domains / Suspicious TLD
@@ -222,7 +222,7 @@ The agent coordinates four specialized forensic tools exposed via standard agent
 - **Purpose**: Comprehensive RFC 822 email parser and phishing classifier.
 - **Capabilities**:
   - Parses headers, MIME boundaries, plain text, and HTML bodies.
-  - Verifies email authentication headers (`Authentication-Results`, `Received-SPF`, `DKIM-Signature`).
+  - Reads SPF/DKIM results reported in `Authentication-Results` and `Received-SPF`; it does not independently verify DNS authorization or cryptographically validate the DKIM signature.
   - Detects spoofing anomalies: `From` header domain vs `Return-Path` domain mismatch.
   - Extracts full `Received` IP routing hops to identify origin MTAs.
   - Urgency & Coercion NLP Analyzer using `TextBlob` sentiment polarity and security keyword detection.
@@ -255,7 +255,7 @@ The agent coordinates four specialized forensic tools exposed via standard agent
 
 ## 8. Machine Learning Models & Explainability
 
-Forensic Engine leverages dual specialized **RandomForest** classifiers with explainable AI (XAI) overlays:
+FEIA leverages dual specialized **RandomForest** classifiers with explainable AI (XAI) overlays:
 
 | Model | Target Artifact | Input Vector Size | Key Features | Explainability |
 | :--- | :--- | :--- | :--- | :--- |
@@ -268,7 +268,7 @@ Forensic Engine leverages dual specialized **RandomForest** classifiers with exp
 
 ## 9. Cross-Source Evidence Correlation & MITRE ATT&CK
 
-The core strength of Forensic Engine is that it **does not treat tool outputs in isolation**. It correlates findings across multiple evidence vectors:
+The core strength of FEIA is that it **does not treat tool outputs in isolation**. It correlates findings across multiple evidence vectors:
 
 ```text
 [Email Header: Spoofed From] + [Body: Urgent Wire Coercion]
@@ -302,7 +302,7 @@ The core strength of Forensic Engine is that it **does not treat tool outputs in
 
 ## 10. REST API Specification
 
-Forensic Engine exposes a clean REST API for SIEM/SOAR automation, scripts, and web clients.
+FEIA exposes a REST API for integration with bank, fintech, government, and SME investigation workflows, as well as scripts and web clients. Integrations should follow each organization's access-control, privacy, retention, and incident-response requirements.
 
 ### Endpoint: `POST /api/agent/investigate`
 Starts an autonomous forensic investigation.
@@ -382,7 +382,7 @@ curl -X POST http://localhost:5000/api/agent/investigate \
     }
   ],
   "recommendations": [
-    "IMMEDIATE: Block domain 'apple-verify.top' on enterprise perimeter firewall & DNS sinkhole.",
+    "Review and, if confirmed, block domain 'apple-verify.top' using the organization's approved DNS/proxy controls.",
     "Search email gateway logs for messages originating from 'spoof@hacker.top' and quarantine matching items.",
     "Force credential invalidation and MFA reset for any users who opened this message."
   ],
@@ -407,11 +407,11 @@ curl -X POST http://localhost:5000/api/agent/investigate \
 - Python 3.10 or 3.11 (Python 3.11 recommended)
 - Git
 
-### Option A: Using `uv` (Fastest, Recommended)
+### Option A: Using `uv` (Recommended)
 ```powershell
 # 1. Clone repository
-git clone https://github.com/mohammadsaihan/Forensic-Engine.git
-cd Forensic-Engine-main/Forensic-Engine-main
+git clone https://github.com/rahamxx/new-agent-forensic.git
+cd new-agent-forensic
 
 # 2. Install dependencies & initialize virtual environment
 uv venv .venv
@@ -450,7 +450,7 @@ python app.py
 
 ## 12. Docker Build & Deployment
 
-The application is containerized with a production-grade multi-platform Docker configuration.
+The application includes Docker configuration for local and controlled deployments. Production use requires organization-specific hardening, security review, monitoring, and operational validation.
 
 ### Using Docker Compose (Single Command):
 ```bash
@@ -486,7 +486,7 @@ curl -f http://localhost:5000/api/agent/scenarios
 
 ## 13. Live Demonstration Guide
 
-For live demonstration and evaluation of **FORENSIC ENGINE**, use the integrated **AI Agent Workbench**:
+For a live demonstration of **FEIA**, use the integrated **AI Agent Workbench**:
 
 ### Step 1: Open the Workbench
 1. Navigate to **http://localhost:5000** in your web browser.
@@ -512,84 +512,76 @@ The workbench provides 5 one-click scenarios illustrating the agent's dynamic re
   - `User Request` $\rightarrow$ `Agent Planner` $\rightarrow$ `EmailForensicsTool` $\rightarrow$ `URLForensicsTool` $\rightarrow$ `ReputationEnrichmentTool` $\rightarrow$ `Evidence Correlation` $\rightarrow$ `Risk Assessment` $\rightarrow$ `Actionable Playbook`.
 - Inspect the **Agent Decision Trace**: Read the transparent rationale for every tool selected.
 - Review **Cross-Source Correlations**: See how individual clues form a high-confidence threat narrative.
-- Inspect the **Containment Playbook**: Review pre-formatted SOC firewall/DNS commands and click **"Approve & Execute Playbook"** to test human sign-off.
+- Inspect the **Containment Playbook**: Review proposed response actions and use the approval flow to demonstrate human sign-off. Validate any execution integration in a safe test environment.
 - Click **"Export Forensic Dossier"** to open an executive, printable PDF/HTML investigation report.
 
 ---
 
 ## 14. Measurable Operational Impact
 
-Deploying Forensic Engine as a Tier-1 DFIR investigator yields immediate, quantifiable efficiency gains:
+The following are planning targets and workflow comparisons, not independently validated production results. A bank pilot should measure end-to-end performance on representative Indian banking evidence and report automated processing separately from analyst review and remediation.
 
-| Metric | Traditional Manual Investigation | Forensic Engine Agent | Improvement |
+| Metric | Manual investigation baseline | FEIA planning target | Interpretation |
 | :--- | :--- | :--- | :--- |
-| **Mean Time to Triage (MTTT)** | 25 – 45 minutes | **1.8 – 3.2 seconds** | **~90% Reduction** |
-| **Indicator Extraction Consistency** | Variable (analyst dependent) | **100% Deterministic & Automated** | Complete Coverage |
-| **Cross-Source Link Pivoting** | Manual copy-pasting of URLs | **Fully Autonomous Lead Follow-Up** | Zero Missed Leads |
-| **Containment Playbook Readiness** | 10 – 15 minutes of manual ticketing | **Instant Pre-Formatted Playbook** | Immediate Action |
-| **Audit Trail Completeness** | Analyst notes often fragmented | **Immutable JSON State & Dossier** | Court/Compliance Ready |
+| **Automated triage processing time** | 25–45 minutes manual handling (scenario baseline) | 1.8–3.2 seconds (target) | Approximately 99.8–99.9% less processing time in a bounded comparison; not end-to-end resolution time |
+| **Indicator extraction** | Manual and analyst-dependent | Automated for supported evidence | Validate omissions and extraction quality on a labeled dataset |
+| **Cross-source link pivoting** | Manual URL extraction and lookup | Autonomous follow-up for discovered links | Reduces manual handoffs; does not guarantee no missed leads |
+| **Playbook preparation** | Manual case documentation | Structured recommendations | Actions remain subject to authorized human approval |
+| **Investigation record** | Analyst notes and separate tool outputs | Structured JSON state and report | Supports review; not by itself immutable or court-ready evidence |
 
 ---
 
 ## 15. Responsible AI, Security & Human-in-the-Loop Policies
 
-Forensic Engine adheres strictly to the highest principles of Responsible and Safe AI:
+FEIA is intended to support responsible, human-supervised investigation. Deploying organizations remain responsible for validating the system, evidence-handling process, and applicable policy:
 
 1. **Human-in-the-Loop (HITL) Enforcement**:
    - The agent **never executes destructive or perimeter actions autonomously** (such as dropping network routes, modifying production firewalls, or revoking accounts).
    - All containment steps are marked as **Recommendations** requiring explicit analyst authorization. Any `HIGH` or `CRITICAL` finding displays a mandatory `HUMAN REVIEW REQUIRED` gate.
 2. **Preservation of Uncertainty**:
-   - The agent strictly separates **factual evidence** (e.g., "DKIM signature failed", "domain registered 2 days ago") from **probabilistic ML inference** (e.g., "0.89 phishing probability").
-   - When ML confidence is ambiguous, the agent explicitly documents the margin of error and defers to deterministic facts.
+   - Reports should separate **observed evidence** (e.g., an SPF failure stated in supplied authentication headers) from **probabilistic model output** (e.g., a phishing score). A domain-registration age should only be reported if an actual lookup supplies it.
+   - Scores are decision-support signals; validate model calibration, error rates, and limitations on representative data.
 3. **No Evidence Fabrication / Anti-Hallucination**:
    - Forensic indicators are extracted directly from verifiable byte streams and RFC specifications. The agent never invents indicators, domains, or network hops.
 4. **Credential & Privacy Protection**:
    - No external API keys (e.g., VirusTotal) are exposed in the frontend or hardcoded into source files. All secrets are read via server-side environment variables (`os.environ.get('VT_API_KEY')`).
-   - Browser history parsers operate on local safe copies and do not transmit sensitive browsing data to third-party endpoints.
+   - Browser-history evidence is sensitive. Review data flows and external reputation lookups before deployment; only submit indicators that the organization's policy permits.
 5. **Full Auditability**:
-   - Every investigation assigns a unique cryptographic ID (`INV-YYYYMMDD-XXXXXX`) and records every tool invocation, timestamp, input parameter, and reasoning step into an immutable audit trace.
+   - Investigations receive identifiers and structured action traces. Protect and retain those records using access controls, retention policies, and tamper-evident logging appropriate to the organization's evidence-handling requirements; the application log alone is not an immutable chain of custody.
 
 ---
 
 ## 16. Repository Structure
 
 ```
-Forensic-Engine-main/
+new-agent-forensic/
 ├── Dockerfile                   # Multi-stage production container definition
 ├── docker-compose.yml           # Single-command container deployment
 ├── .dockerignore                # Container build exclusion list
 ├── requirements.txt             # Python dependencies
 ├── README.md                    # Comprehensive technical documentation
-├── Forensic-Engine-main/
-│   ├── app.py                   # Main Flask REST API, SocketIO & Agent Endpoints
-│   ├── agent_core.py            # AI Agent Engine (Planner, Tools, Correlator, Risk)
-│   ├── feature_extractor.py     # Feature Extraction for URLs & Emails
-│   ├── email_parser.py          # RFC 822 Email Header & Body Parser
-│   ├── history_parser.py        # Chrome/Edge/Firefox SQLite Forensics Parser
-│   ├── integrations.py          # External Threat Intel (VirusTotal API)
-│   ├── train_model.py           # Model Training & Dataset Generation
-│   ├── test_agent.py            # Unit Tests for Agent Core Logic
-│   ├── test_agent_api.py        # Integration Tests for REST API Endpoints
-│   ├── models/                  # Pre-trained ML Models
-│   │   ├── url_phishing_model.pkl
-│   │   └── email_phishing_model.pkl
-│   ├── sample_emails/           # Real-world test emails (Apple, Chase, PayPal, etc.)
-│   ├── static/
-│   │   ├── css/style.css        # Premium SOC Dark Mode Glassmorphism Theme
-│   │   └── js/
-│   │       ├── agent.js         # AI Agent UI Engine, DAG Canvas & Playbook Actions
-│   │       ├── dashboard.js     # SOC Live Monitoring & Charts
-│   │       └── chart.min.js     # Chart.js Library
-│   └── templates/
-│       └── index.html           # Unified SOC & AI Agent Workbench Interface
+├── app.py                       # Flask API, SocketIO, and investigation endpoints
+├── agent_core.py                # Planner, forensic tools, correlation, and risk
+├── feature_extractor.py         # URL and email feature extraction
+├── email_parser.py              # RFC 822 email parser
+├── history_parser.py            # Browser-history SQLite parser
+├── integrations.py              # External reputation integrations
+├── models/                      # Configured phishing-classification models
+├── sample_emails/               # Demonstration and test email artifacts
+├── static/                      # Workbench styles and browser scripts
+├── templates/                   # FEIA investigation workbench
+├── docs/                        # Documentation index
+├── PROBLEM_STATEMENT.md         # Bharat-specific problem framing
+├── WORKFLOW.md                  # Investigation workflow guide
+└── BANK_ROI_CASE_STUDY.md       # Illustrative Indian bank ROI case study
 ```
 
 ---
 
 ## 17. Platform Architecture & Standards
 
-- **System**: FORENSIC ENGINE Enterprise Digital Forensics Platform
-- **Domain**: AI Agents for Cyber Forensics, Threat Intelligence & Digital Safety
+- **System**: Forensic Evidence Intelligence Agent (FEIA)
+- **Context**: Digital forensics and cyber incident triage for Indian banks, fintechs, government IT, and SMEs
 - **Core Technologies**: Python, Flask, SocketIO, Scikit-Learn, SHAP, Docker, TailwindCSS, Chart.js
 
-*FORENSIC ENGINE represents a genuine step forward in autonomous cyber defense—empowering human investigators with an intelligent, tireless, and auditable AI agent partner.*
+*FEIA aims to strengthen India's digital resilience by helping investigators move from scattered evidence to a timely, reviewable decision—while keeping people accountable for consequential actions.*
